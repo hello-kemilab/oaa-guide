@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://oaalife.com/guide/sitemap-index.xml

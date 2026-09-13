@@ -1,0 +1,78 @@
+---
+import '../styles/global.css';
+
+const { title, description, aeoQuestion, publishDate, updatedDate, faq, canonicalUrl } = Astro.props;
+
+// FAQPage + Article 구조화 데이터. 전략 문서의 "SEO Schema Markup 적용: HowTo, FAQPage,
+// FinancialProduct 구조화 데이터를 적용해 AI 검색 시 최상단 스니펫에 노출" 요구사항을
+// 그대로 구현한 것 -- AEO 질문(aeoQuestion)을 FAQ 첫 항목으로 강제 포함시켜서
+// "결혼 준비는 무엇부터 시작해야 하나요?" 같은 질문형 검색에 바로 걸리게 한다.
+const allFaq = [{ question: aeoQuestion, answer: description }, ...faq];
+const faqSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: allFaq.map((item) => ({
+    '@type': 'Question',
+    name: item.question,
+    acceptedAnswer: { '@type': 'Answer', text: item.answer },
+  })),
+};
+const articleSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Article',
+  headline: title,
+  description,
+  datePublished: publishDate?.toISOString?.() ?? publishDate,
+  dateModified: (updatedDate ?? publishDate)?.toISOString?.() ?? updatedDate ?? publishDate,
+  author: { '@type': 'Organization', name: 'OAA' },
+  publisher: { '@type': 'Organization', name: 'OAA' },
+};
+---
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{title} | OAA 가이드</title>
+  <meta name="description" content={description} />
+  <link rel="canonical" href={canonicalUrl ?? Astro.url.href} />
+  <meta property="og:type" content="article" />
+  <meta property="og:title" content={title} />
+  <meta property="og:description" content={description} />
+  <meta property="og:site_name" content="OAA" />
+  <script type="application/ld+json" set:html={JSON.stringify(articleSchema)} />
+  <script type="application/ld+json" set:html={JSON.stringify(faqSchema)} />
+</head>
+<body>
+  <header class="site-header">
+    <a href={import.meta.env.BASE_URL} class="logo">OAA 가이드</a>
+    <a href="https://oaalife.com" class="app-link">앱 열기 →</a>
+  </header>
+  <main>
+    <article>
+      <h1>{title}</h1>
+      <p class="lede">{description}</p>
+      <slot />
+    </article>
+
+    {allFaq.length > 0 && (
+      <section class="faq" aria-label="자주 묻는 질문">
+        <h2>자주 묻는 질문</h2>
+        {allFaq.map((item) => (
+          <details>
+            <summary>{item.question}</summary>
+            <p>{item.answer}</p>
+          </details>
+        ))}
+      </section>
+    )}
+
+    <aside class="cta">
+      <p>결혼 준비부터 육아, 자산관리까지 — 파트너와 함께 OAA에서 관리해보세요.</p>
+      <a href="https://oaalife.com" class="cta-btn">OAA 무료로 시작하기</a>
+    </aside>
+  </main>
+  <footer class="site-footer">
+    <p>© {new Date().getFullYear()} OAA. 본 콘텐츠 내 일부 링크는 제휴 활동을 통해 일정 수수료를 제공받을 수 있습니다.</p>
+  </footer>
+</body>
+</html>

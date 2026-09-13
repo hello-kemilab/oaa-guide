@@ -1,0 +1,44 @@
+---
+import { getCollection } from 'astro:content';
+import '../styles/global.css';
+
+const articles = (await getCollection('articles')).sort(
+  (a, b) => b.data.publishDate.valueOf() - a.data.publishDate.valueOf()
+);
+
+const categoryLabel = {
+  wedding: '웨딩',
+  newlywed: '신혼/자산',
+  parenting: '육아',
+  asset: '자산',
+};
+---
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OAA 가이드 — 웨딩·신혼·육아·자산 준비 총정리</title>
+  <meta name="description" content="결혼 준비 체크리스트부터 신혼 자산관리, 육아 정보까지 — OAA가 정리한 실전 가이드." />
+</head>
+<body>
+  <header class="site-header">
+    <a href={import.meta.env.BASE_URL} class="logo">OAA 가이드</a>
+    <a href="https://oaalife.com" class="app-link">앱 열기 →</a>
+  </header>
+  <main>
+    <h1>OAA 가이드</h1>
+    <p class="lede">결혼 준비, 신혼 자산관리, 육아까지 — 단계별로 정리한 실전 가이드입니다.</p>
+    <ul class="article-list">
+      {articles.map((article) => (
+        <li>
+          <a href={`${import.meta.env.BASE_URL}/${article.id}`}>{article.data.title}</a>
+          <p>[{categoryLabel[article.data.category]}] {article.data.description}</p>
+        </li>
+      ))}
+    </ul>
+  </main>
+  <footer class="site-footer">
+    <p>© {new Date().getFullYear()} OAA. 본 콘텐츠 내 일부 링크는 제휴 활동을 통해 일정 수수료를 제공받을 수 있습니다.</p>
+  </footer>
+</body>
+</html>
