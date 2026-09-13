@@ -1,7 +1,7 @@
 ---
 import '../styles/global.css';
 
-const { title, description, aeoQuestion, publishDate, updatedDate, faq, canonicalUrl } = Astro.props;
+const { title, description, aeoQuestion, publishDate, updatedDate, faq } = Astro.props;
 
 // FAQPage + Article 구조화 데이터. 전략 문서의 "SEO Schema Markup 적용: HowTo, FAQPage,
 // FinancialProduct 구조화 데이터를 적용해 AI 검색 시 최상단 스니펫에 노출" 요구사항을
@@ -34,7 +34,7 @@ const articleSchema = {
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>{title} | OAA 가이드</title>
   <meta name="description" content={description} />
-  <link rel="canonical" href={canonicalUrl ?? Astro.url.href} />
+  <link rel="canonical" href={Astro.url.href} />
   <meta property="og:type" content="article" />
   <meta property="og:title" content={title} />
   <meta property="og:description" content={description} />
@@ -54,17 +54,15 @@ const articleSchema = {
       <slot />
     </article>
 
-    {allFaq.length > 0 && (
-      <section class="faq" aria-label="자주 묻는 질문">
-        <h2>자주 묻는 질문</h2>
-        {allFaq.map((item) => (
-          <details>
-            <summary>{item.question}</summary>
-            <p>{item.answer}</p>
-          </details>
-        ))}
-      </section>
-    )}
+    <section class="faq" aria-label="자주 묻는 질문">
+      <h2>자주 묻는 질문</h2>
+      {allFaq.map((item) => (
+        <details>
+          <summary>{item.question}</summary>
+          <p>{item.answer}</p>
+        </details>
+      ))}
+    </section>
 
     <aside class="cta">
       <p>결혼 준비부터 육아, 자산관리까지 — 파트너와 함께 OAA에서 관리해보세요.</p>
